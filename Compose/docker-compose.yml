@@ -1,4 +1,4 @@
-version: "3"
+version: "3.2"
 
 services:
 
@@ -10,7 +10,8 @@ services:
       - frontend
       - backend
     expose:
-      - "5000"
+      - "3000"
+      - "3006"
     depends_on:
       - db
 
@@ -21,19 +22,32 @@ services:
     depends_on:
       - server
     ports:
-      - "4000:4000"
+      - "3000:3000"
+    networks:
+      - frontend
 
   db:
     image: mariadb
     restart: always
     networks:
-      - backend    
+      backend:
+       ipv4_address: 20.20.4.31   
     environment:
       MYSQL_ROOT_PASSWORD: xxxx
-      MYSQL_DATABASE: quizz
-      MYSQL_USER: root
+      MYSQL_DATABASE: quiz
+      MYSQL_USER: quiz
       MYSQL_PASSWORD: xxxx
+    expose:
+      - '3306'
 
 networks:
   frontend:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 20.20.3.0/24
   backend:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 20.20.4.0/24
