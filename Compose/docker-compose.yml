@@ -4,8 +4,16 @@ services:
 
   server:
     image: server
+    deploy:
+      replicas: 2
+    networks:
+      - frontend
+      - backend
     expose:
       - "5000"
+    depends_on:
+      - db
+
   nginx:
     image: nginx:latest
     volumes:
@@ -14,3 +22,18 @@ services:
       - server
     ports:
       - "4000:4000"
+
+  db:
+    image: mariadb
+    restart: always
+    networks:
+      - backend    
+    environment:
+      MYSQL_ROOT_PASSWORD: xxxx
+      MYSQL_DATABASE: quizz
+      MYSQL_USER: root
+      MYSQL_PASSWORD: xxxx
+
+networks:
+  frontend:
+  backend:
