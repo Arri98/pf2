@@ -4,8 +4,6 @@ services:
 
   server:
     image: server
-    deploy:
-      replicas: 2
     networks:
       - frontend
       - backend
@@ -14,7 +12,6 @@ services:
       - "3006"
     depends_on:
       - db
-
   nginx:
     image: nginx:latest
     volumes:
@@ -39,6 +36,25 @@ services:
       MYSQL_PASSWORD: xxxx
     expose:
       - '3306'
+
+  nas1: 
+    image: gluster
+    depends_on:
+      - nas2
+      - nas3
+    networks:
+      backend:
+       ipv4_address: 20.20.4.21   
+  nas2: 
+    image: nas
+    networks:
+      backend:
+       ipv4_address: 20.20.4.22  
+  nas3: 
+    image: nas
+    networks:
+      backend:
+       ipv4_address: 20.20.4.23   
 
 networks:
   frontend:

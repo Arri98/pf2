@@ -12,4 +12,4 @@ RUN git clone https://github.com/CORE-UPM/quiz_2020.git
 EXPOSE 3000
 EXPOSE 3006
 WORKDIR /quiz_2020
-CMD npm install mysql2; export DATABASE_URL= DATABASE_URL=mysql://quiz:xxxx@20.20.4.31:3306/quiz;  export QUIZ_OPEN_REGISTER=yes;  npm run-script migrate_cdps; npm run-script seed_cdps; npm run super;
+CMD npm install mysql2; export DATABASE_URL= DATABASE_URL=mysql://quiz:xxxx@20.20.4.31:3306/quiz;  export QUIZ_OPEN_REGISTER=yes;  npm run super;
