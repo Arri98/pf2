@@ -36,26 +36,34 @@ services:
       MYSQL_PASSWORD: xxxx
     expose:
       - '3306'
-
-  nas1: 
+  gluster: 
     image: gluster
     depends_on:
+      - nas1
       - nas2
       - nas3
     networks:
       backend:
-       ipv4_address: 20.20.4.21   
+       ipv4_address: 20.20.4.20  
+    privileged: true
+  nas1: 
+    image: nas
+    networks:
+      backend:
+       ipv4_address: 20.20.4.21  
+    privileged: true 
   nas2: 
     image: nas
     networks:
       backend:
        ipv4_address: 20.20.4.22  
+    privileged: true
   nas3: 
     image: nas
     networks:
       backend:
        ipv4_address: 20.20.4.23   
-
+    privileged: true
 networks:
   frontend:
     driver: bridge
