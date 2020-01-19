@@ -12,6 +12,7 @@ services:
       - "3006"
     depends_on:
       - db
+    privileged: true
   nginx:
     image: nginx:latest
     volumes:
