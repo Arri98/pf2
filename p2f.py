@@ -30,7 +30,6 @@ def configuracionbasededatos():
     call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "apt", "-y", "install", "mariadb-server"])
     call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "sed", "-i", "-e", "s/bind-address.*/bind-address=0.0.0.0/", "-e" ,"s/utf8mb4/utf8/","/etc/mysql/mariadb.conf.d/50-server.cnf"])
     call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "systemctl", "restart", "mysql"])
-
     call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "mysqladmin", "-u", "root", "password", "xxxx"])
     print("Creando usuario")
     call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "mysql", "-u", "root", "--password='xxxx'", "-e", "CREATE USER 'quiz' IDENTIFIED BY 'xxxx';"])
@@ -45,19 +44,15 @@ def configuracioncortafuegos():
     
 def configurarGluster():
     print("Configuramos Gluster")
-
-#gluster peer probe 20.20.4.XX
-
-    call("sudo lxc-attach --clear-env -n nas1 -- gluster peer probe 20.20.4.21", shell=True)
-    call("sudo lxc-attach --clear-env -n nas1 -- gluster peer probe 20.20.4.22", shell=True)
-    call("sudo lxc-attach --clear-env -n nas1 -- gluster peer probe 20.20.4.23", shell=True)
-
-    call("sudo lxc-attach --clear-env -n nas1 -- gluster peer status", shell=True)
-    call("sudo lxc-attach --clear-env -n nas1 -- gluster volume create nas replica 3 20.20.4.21:/nas 20.20.4.22:/nas 20.20.4.23_/nas force")
-    call("sudo lxc-attach --clear-env -n nas1 -- gluster volume start nas")
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "gluster", "peer", "probe", "20.20.4.21"])
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "gluster", "peer", "probe", "20.20.4.22"])
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "gluster", "peer", "probe", "20.20.4.23"])
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "gluster", "peer", "status"])
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "gluster", "volume" "create", "nas", "replica", "3", "20.20.4.21:/nas", "20.20.4.22:/nas", "20.20.4.23_/nas", "force"])
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "gluster", "volume", "start", "nas"])
     print("Estado de los volumenes")
-    call("sudo lxc-attach --clear-env -n nas1 -- gluster volume info")
-    call("sudo lxc-attach --clear-env -n nas1 --  set nas network.ping-timeout 5")
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--", "gluster", "volume", "info"])
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--",  "set", "nas", "network.ping-timeout", "5"])
 
     
     for i in range(2):    
@@ -68,10 +63,10 @@ def configurarGluster():
     
 def configuracionbalanceador():
 
-    call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\ s1 20.20.3.11:80 check\' >> /etc/haproxy//haproxy.cfg"'], shell=True)
-    call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\ s2 20.20.3.12:80 check\' >> /etc/haproxy//haproxy.cfg"'], shell=True)
-    call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\ s3 20.20.3.13:80 check\' >> /etc/haproxy/haproxy.cfg"'], shell=True)
-    call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\nfrontend lb\n\tbind ]:80\n\tmode http\n\tdefault_backend webservers\n\backend webservers\n\tmode http\n\tbalance roundrobin\' >> /etc/haproxy//haproxy.cfg"'], shell=True)
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--" "bash -c" ,"echo \'\ s1 20.20.3.11:80 check\' >> /etc/haproxy//haproxy.cfg'", "shell=True"])
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--" "bash" ,"-c", "echo \'\ s2 20.20.3.12:80 check\' >> /etc/haproxy//haproxy.cfg'", "shell=True"])
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--" "bash" ,"-c", "echo \'\ s3 20.20.3.13:80 check\' >> /etc/haproxy//haproxy.cfg'", "shell=True"])
+    call(["sudo", "lxc-attach", "--clear-env", "-n", "bbdd", "--" "bash", "-c", "echo \'\nfrontend lb\n\tbind ]:80\n\tmode http\n\tdefault_backend webservers\n\backend webservers\n\tmode http\n\tbalance roundrobin\' >> /etc/haproxy//haproxy.cfg'", "shell=True"])
 
 def crearLB():
 
@@ -101,21 +96,27 @@ def vamosquiz():
  call(["sudo", "lxc-attach", "-n", "s"+str(i+1), "--", "sudo", "apt-get", "-y", "install", "nodejs"])
  call(["sudo", "lxc-attach", "-n", "s"+str(i+1), "--", "sudo", "apt-get", "-y" ,"install", "npm"])
  call(["sudo", "lxc-attach", "-n", "s"+str(i+1), "--" ,"sudo" ,"nodejs", "-v"])
- call(["sudo", "lxc-attach", "--clear-env", "-n",  "s1", "--", "sudo", "npm", "run-script", "migrate_cdps"])
- call(["sudo", "lxc-attach", "--clear-env", "-n",  "s1", "--", "sudo", "npm", "run-script", "seed_cdps"])
+ 
  call(["sudo", "lxc-attach", "-n" ,"s1", "--", "sudo", "-c", "./node_modules/forever/bin/forever", "start", "./bin/www "])
 for i in range(2):
-
  call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1), "--", "sudo", "git", "clone", "https://github.com/CORE-UPM/quiz_2020.git"])
  call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudo", "cd", "/quiz_2020"])
  call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudo", "mkdir", "-p", "public/uploads"])
  call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudo", "npm", "install"])
- call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "bash", "npm", "install", "forever"])
- call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "bash", "npm", "install", "mysql2"])
- call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "bash", "export", "QUIZ_OPEN_REGISTER=yes"])
- call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "bash", "export", "QUIZ_OPEN_REGISTER=yes"])
-
- call(["sudo", "lxc-attach", "-n s"+str(i+1), "--", "bash", "-c", "DATABASE_URL=mysql://quiz:xxxx@20.20.4.31:3306/quiz"])
+ call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudp", "npm", "install", "forever"])
+ call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudp", "npm", "install", "mysql2"])
+ call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudp", "add-apt-repository", "ppa:gluster/glusterfs-7"])
+ call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudp", "apt-get", "install", "-y", "glusterfs-client"])
+ call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudp", "apt-get", "install", "-y", "attr"])
+ call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudp", "export", "QUIZ_OPEN_REGISTER=yes"])
+ call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudp", "export", "CLOUDINARY_URL=public/uploads"])
+ call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1), "--", "sudp", "-c", "DATABASE_URL=mysql://quiz:xxxx@20.20.4.31:3306/quiz"])
+ call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1), "--" , "mkdir", "/mnt/nas"])
+ call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),"mount","-t","glusterfs", "20.20.4.2"+str(i+1)+":/nas", "mnt/nas"])
+ if i=0:
+    call(["sudo", "lxc-attach", "--clear-env", "-n",  "s1", "--", "sudo", "npm", "run-script", "migrate_cdps"])
+    call(["sudo", "lxc-attach", "--clear-env", "-n",  "s1", "--", "sudo", "npm", "run-script", "seed_cdps"])
+   
 
 
 vamosquiz()
