@@ -81,6 +81,7 @@ def vamosquiz():
 
  for i in range(2):
      call(["sudo", "lxc-attach","--clear-env", "-n", "s"+str(i+1), "--", "sudo", "apt-get", "update"])
+     call(["curl","-sL","https://deb.nodesource.com/setup_13.x","|","sudo","-E","bash","-",]) 
      call(["sudo", "lxc-attach","--clear-env", "-n", "s"+str(i+1), "--", "sudo", "apt-get", "-y", "install", "nodejs"])
      call(["sudo", "lxc-attach","--clear-env", "-n", "s"+str(i+1), "--", "sudo", "apt-get", "-y" ,"install", "npm"])
      call(["sudo", "lxc-attach","--clear-env", "-n", "s"+str(i+1), "--" ,"sudo" ,"nodejs", "-v"])
