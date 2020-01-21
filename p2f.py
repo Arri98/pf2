@@ -44,9 +44,9 @@ def configuracionbasededatos():
 
 def configuracioncortafuegos():
     print("Configuramos Cortafuegos")    
-    comando= "sudo cp fw.fw /var/lib/lxc/fw/rootfs/root"  
+    comando= "scp ~/Desktop/pf2/pf2/fw.fw root@fw:/root"  
     call(comando, shell=True)	 
-    comando= "sudo lxc-attach --clear-env -n fw -- /root/fw.fw "	
+    comando= "sudo lxc-attach --clear-env -n fw -- bash -c  /root/fw.fw "	
     call(comando, shell=True)	
 
 
@@ -70,43 +70,38 @@ def configuracionbalanceador():
     call(['sudo lxc-attach --clear-env -n lb -- sudo apt -y install haproxy'], shell=True)
     call(['sudo lxc-attach --clear-env -n lb -- sudo service apache2 stop'], shell=True)       
     call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\nfrontend lb\n\tbind *:80\n\tmode http\n\tdefault_backend webservers\n\nbackend webservers\n\tmode http\n\tbalance roundrobin\' >> /etc/haproxy/haproxy.cfg"'], shell=True)
-    call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\tserver s1 20.20.3.11:80 check\' >> /etc/haproxy/haproxy.cfg"'], shell=True)
-    call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\tserver s2 20.20.3.12:80 check\' >> /etc/haproxy/haproxy.cfg"'], shell=True)
-    call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\tserver s3 20.20.3.13:80 check\' >> /etc/haproxy/haproxy.cfg"'], shell=True)
+    call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\tserver s1 20.20.3.11:3000 check\' >> /etc/haproxy/haproxy.cfg"'], shell=True)
+    call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\tserver s2 20.20.3.12:3000 check\' >> /etc/haproxy/haproxy.cfg"'], shell=True)
+    call(['sudo lxc-attach --clear-env -n lb -- bash -c "echo \'\tserver s3 20.20.3.13:3000 check\' >> /etc/haproxy/haproxy.cfg"'], shell=True)
  	
     call(['sudo lxc-attach --clear-env -n lb -- sudo service haproxy restart'], shell=True)  
 
 
 def vamosquiz():
 
- for i in range(2):
+ for i in range(3):
+     print("\n\nConfigurando: " + str(i))
+     print("\n\n")
      call(["sudo", "lxc-attach","--clear-env", "-n", "s"+str(i+1), "--", "sudo", "apt-get", "update"])
-     call(["curl","-sL","https://deb.nodesource.com/setup_13.x","|","sudo","-E","bash","-",]) 
+     call(["sudo", "lxc-attach","--clear-env", "-n", "s"+str(i+1), "--", "curl","-sL","https://deb.nodesource.com/setup_13.x","|","sudo","-E","bash","-"],shell=True) 
      call(["sudo", "lxc-attach","--clear-env", "-n", "s"+str(i+1), "--", "sudo", "apt-get", "-y", "install", "nodejs"])
-     call(["sudo", "lxc-attach","--clear-env", "-n", "s"+str(i+1), "--", "sudo", "apt-get", "-y" ,"install", "npm"])
-     call(["sudo", "lxc-attach","--clear-env", "-n", "s"+str(i+1), "--" ,"sudo" ,"nodejs", "-v"])
-     call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1), "--", "sudo", "git", "clone", "https://github.com/CORE-UPM/quiz_2020.git"])
-     call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudo", "add-apt-repository", "ppa:gluster/glusterfs-7"])
-     call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudo", "apt-get", "install", "-y", "glusterfs-client"])
+     call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1), "--", "git", "clone", "https://github.com/CORE-UPM/quiz_2020.git"])
+     call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "add-apt-repository", "ppa:gluster/glusterfs-7"])
+     call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--","apt-get", "install", "-y", "glusterfs-client"])
      call(["sudo", "lxc-attach", "--clear-env", "-n", "s"+str(i+1),  "--", "sudo", "apt-get", "install", "-y", "attr"])
-     call("sudo lxc-attach -n s1 -- bash -c 'cd /quiz_2020; npm install; npm install mysql2; npm install forever; mkdir -p /mnt/nas;sudo mount -t glusterfs 20.20.4.21:/nas /mnt/nas; export CLOUDINARY_URL=public/uploads;  export QUIZ_OPEN_REGISTER=yes;export DATABASE_URL=mysql://quiz:xxxx@20.20.4.31:3306/quiz ; npm run-script migrate_cdps; npm run-script seed_cdps; ./node_modules/forever/bin/forever start ./bin/www '", shell=True)
-     call("sudo lxc-attach -n s"+str(i+1)+" -- ln -s public/uploads /mnt/nas", shell=True)	
+     call("sudo lxc-attach -n s1 -- bash -c 'cd /quiz_2020; npm install; npm install mysql2; npm install forever;sudo mount -t glusterfs 20.20.4.21:/nas /quiz_2020/public/uploads; export CLOUDINARY_URL=public/uploads;  export QUIZ_OPEN_REGISTER=yes;export DATABASE_URL=mysql://quiz:xxxx@20.20.4.31:3306/quiz ; npm run-script migrate_cdps; npm run-script seed_cdps; ./node_modules/forever/bin/forever start ./bin/www '", shell=True)
+     #call("sudo lxc-attach -n s"+str(i+1)+" -- ln -s public/uploads /mnt/nas", shell=True)	
 
 def parar():
  os.chdir('/mnt/tmp/pc2/')
  call(["sudo", "vnx", "-f", "pc2.xml", "--shutdown"])
 
-def crearLB():
-
-    call("sudo lxc-attach --clear-env -n lb -- xr -dr -S --server tcp:0:80 --backend 20.20.3.11:3000  --backend 20.20.3.12:3000 --backend 20.20.3.13:3000 --web-interface 0:8001 &", shell=True)
-
 
 crear()
-crearLB()
-configurarGluster()
-configurarGluster()
 configuracionbalanceador()
-configuracioncortafuegos()
+configurarGluster()
+configurarGluster()
+#configuracioncortafuegos()
 configuracionbasededatos()
 vamosquiz()
 
