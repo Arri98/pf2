@@ -98,12 +98,13 @@ def parar():
 
 
 crear()
-configuracionbalanceador()
-configurarGluster()
-configurarGluster()
-#configuracioncortafuegos()
 configuracionbasededatos()
+configurarGluster()
+configurarGluster()
 vamosquiz()
+configuracionbalanceador()
+configuracioncortafuegos()
+
 
 
 #configuracion roundrobin
